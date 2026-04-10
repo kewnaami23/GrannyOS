@@ -35,7 +35,7 @@ jobs:
       - name: Init Android source
         run: |
           cd workspace
-          repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_rXX
+          repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r67
 
       - name: Sync Android source
         run: |
