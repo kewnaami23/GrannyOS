@@ -8,29 +8,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y git openjdk-11-jdk bc bison build-essential curl flex g++-multilib gcc-multilib libncurses5-dev libssl-dev
+          sudo apt install -y git curl openjdk-11-jdk bc bison build-essential flex g++-multilib gcc-multilib libncurses5-dev libssl-dev python3 wget
 
-      - name: Clone Android source
+      - name: Install repo tool
         run: |
-          mkdir workspace
+          mkdir -p ~/bin
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+          chmod a+x ~/bin/repo
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Verify repo
+        run: repo --version
+
+      - name: Create workspace
+        run: mkdir workspace
+
+      - name: Init Android source
+        run: |
           cd workspace
           repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_rXX
-          repo sync -j4
 
-      - name: Build GrannyOS
+      - name: Sync source
         run: |
-          source build/envsetup.sh
-          lunch grannyos_beryllium-userdebug
-          mka bacon -j2
+          cd workspace
+          repo sync -j2
 
-      - name: Upload ROM
-        uses: actions/upload-artifact@v4
-        with:
-          name: GrannyOS-ROM
-          path: out/target/product/beryllium/*.zip
+      - name: Build (placeholder)
+        run: |
+          echo "Build step will come after device tree setup"
