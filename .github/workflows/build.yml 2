@@ -1,0 +1,43 @@
+name: GrannyOS Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git curl python3 openjdk-11-jdk bc bison build-essential flex g++-multilib gcc-multilib libncurses5-dev libssl-dev wget
+
+      - name: Install repo tool (CRITICAL FIX)
+        run: |
+          mkdir -p $HOME/bin
+          curl -o $HOME/bin/repo https://storage.googleapis.com/git-repo-downloads/repo
+          chmod +x $HOME/bin/repo
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Verify repo installed
+        run: |
+          which repo
+          repo --version
+
+      - name: Create workspace
+        run: |
+          mkdir -p workspace
+
+      - name: Init Android source
+        run: |
+          cd workspace
+          repo init -u https://android.googlesource.com/platform/manifest -b android-15.0.0_r1
+
+      - name: Sync Android source
+        run: |
+          cd workspace
+          repo sync -j2
