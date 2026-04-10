@@ -1,0 +1,36 @@
+name: GrannyOS Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git openjdk-11-jdk bc bison build-essential curl flex g++-multilib gcc-multilib libncurses5-dev libssl-dev
+
+      - name: Clone Android source
+        run: |
+          mkdir workspace
+          cd workspace
+          repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_rXX
+          repo sync -j4
+
+      - name: Build GrannyOS
+        run: |
+          source build/envsetup.sh
+          lunch grannyos_beryllium-userdebug
+          mka bacon -j2
+
+      - name: Upload ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: GrannyOS-ROM
+          path: out/target/product/beryllium/*.zip
